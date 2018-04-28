@@ -4,12 +4,14 @@ services:
   php:
     image: php-phalcon-swoole:0.1
     container_name: php
+    restart: always
     volumes:
       - /data/www:/data/www
       - /data/log/php:/var/log/php
   nginx:
     image: nginx:1.12
     container_name: nginx
+    restart: always
     volumes:
       - /data/www:/data/www
       - /data/log/nginx:/var/log/nginx
@@ -22,8 +24,9 @@ services:
   mysql:
     image: mysql:5.7
     container_name: mysql
+    restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: I9l70NXgkb
+      - MYSQL_ROOT_PASSWORD: I9l70NXgkb
     volumes:
       - /data/mysql:/var/lib/mysql
       - /data/log/mysql:/var/log/mysql
@@ -33,5 +36,6 @@ services:
   redis:
     image: redis:4-alpine
     container_name: redis
+    restart: always
     ports:
       - "6379:6379"
