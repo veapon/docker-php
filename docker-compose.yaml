@@ -26,7 +26,7 @@ services:
     container_name: mysql
     restart: always
     environment:
-      - MYSQL_ROOT_PASSWORD: I9l70NXgkb
+      - MYSQL_ROOT_PASSWORD=I9l70NXgkb
     volumes:
       - /data/mysql:/var/lib/mysql
       - /data/log/mysql:/var/log/mysql
