@@ -2,40 +2,50 @@ version: "3"
 
 services:
   php:
-    image: php-phalcon-swoole:0.1
+#    image: letsdockerize/laradock-php-fpm:2.4-5.6
+    build:
+      context: ./php
     container_name: php
     restart: always
     volumes:
-      - /data/www:/data/www
-      - /data/log/php:/var/log/php
+      - ${CODE_PATH}:/var/www
+      - ${LOG_PATH}/php:/var/log/php
+      - ./php/conf.d/php56.ini:/usr/local/etc/php/conf.d/php56.ini
+      - ./php/conf.d/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+
   nginx:
-    image: nginx:1.12
+    image: nginx:alpine
     container_name: nginx
     restart: always
     volumes:
-      - /data/www:/data/www
-      - /data/log/nginx:/var/log/nginx
+      - ${CODE_PATH}:/var/www
+      - ${LOG_PATH}/nginx:/var/log/nginx
       - ./nginx/conf.d:/etc/nginx/conf.d
     ports:
       - "80:80"
-      - "443:443"
     depends_on:
       - php
+
   mysql:
     image: mysql:5.7
     container_name: mysql
     restart: always
     environment:
-      - MYSQL_ROOT_PASSWORD=I9l70NXgkb
+      - MYSQL_ROOT_PASSWORD=root
     volumes:
-      - /data/mysql:/var/lib/mysql
-      - /data/log/mysql:/var/log/mysql
+      - ${DATA_PATH}/mysql:/var/lib/mysql
+      - ${LOG_PATH}/mysql:/var/log/mysql
       - ./mysql/conf.d/:/etc/mysql/conf.d
     ports:
       - "3306:3306"
+
   redis:
-    image: redis:4-alpine
+#    image: redis:4-alpine
+    build:
+      context: ./redis
     container_name: redis
     restart: always
+    volumes:
+      - ./redis/conf.d:/etc/redis
     ports:
       - "6379:6379"
