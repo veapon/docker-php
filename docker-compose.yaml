@@ -1,51 +1,52 @@
 version: "3"
 
 services:
-  php:
-#    image: letsdockerize/laradock-php-fpm:2.4-5.6
-    build:
-      context: ./php
-    container_name: php
-    restart: always
-    volumes:
-      - ${CODE_PATH}:/var/www
-      - ${LOG_PATH}/php:/var/log/php
-      - ./php/conf.d/php56.ini:/usr/local/etc/php/conf.d/php56.ini
-      - ./php/conf.d/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
-
-  nginx:
-    image: nginx:alpine
-    container_name: nginx
-    restart: always
-    volumes:
-      - ${CODE_PATH}:/var/www
-      - ${LOG_PATH}/nginx:/var/log/nginx
-      - ./nginx/conf.d:/etc/nginx/conf.d
-    ports:
-      - "80:80"
-    depends_on:
-      - php
-
   mysql:
-    image: mysql:5.7
+    image: mysql:5.7.41
+    platform: linux/x86_64
     container_name: mysql
-    restart: always
     environment:
       - MYSQL_ROOT_PASSWORD=root
     volumes:
-      - ${DATA_PATH}/mysql:/var/lib/mysql
-      - ${LOG_PATH}/mysql:/var/log/mysql
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/log:/var/log/mysql
       - ./mysql/conf.d/:/etc/mysql/conf.d
     ports:
       - "3306:3306"
+    networks:
+      - develop-env
 
   redis:
-#    image: redis:4-alpine
-    build:
-      context: ./redis
+    image: redis:6.2
     container_name: redis
-    restart: always
     volumes:
       - ./redis/conf.d:/etc/redis
     ports:
       - "6379:6379"
+    networks:
+      - develop-env
+
+  elasticsearch:
+    image: elasticsearch:8.6.1
+    container_name: elasticsearch
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - develop-env
+
+  kibana:
+    image: kibana:8.6.1
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    depends_on:
+        - elasticsearch
+    networks:
+      - develop-env
+
+networks:
+  develop-env:
